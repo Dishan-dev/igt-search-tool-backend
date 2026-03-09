@@ -1,1 +1,0 @@
-# igt-search-tool-backend
