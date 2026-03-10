@@ -27,7 +27,7 @@ export interface ExpaOpportunityRaw {
     salary?: number | null;
     salary_periodicity?: string;
     computer?: string;
-    expected_work_schedule?: any;
+    expected_work_schedule?: unknown;
   };
   role_info?: {
     learning_points_list?: string[];
@@ -42,11 +42,38 @@ export interface ExpaOpportunityRaw {
     transportation_provided?: string;
     transportation_covered?: string;
   };
-  programmes?: {
-    id: number;
-    short_name_display: string;
-  };
+  programmes?:
+    | {
+        id: number;
+        short_name_display: string;
+      }
+    | Array<{
+        id: number;
+        short_name_display: string;
+      }>;
   [key: string]: any;
+}
+
+export interface OpportunityProgramme {
+  id: number;
+  shortName: string;
+}
+
+export interface OpportunityLogistics {
+  accommodationProvided: string | null;
+  accommodationCovered: string | null;
+  computerProvided: string | null;
+  foodProvided: string | null;
+  foodCovered: string | null;
+  transportationProvided: string | null;
+  transportationCovered: string | null;
+}
+
+export interface OpportunitySpecifics {
+  salary: number | null;
+  salaryPeriodicity: string | null;
+  computer: string | null;
+  expectedWorkSchedule: unknown | null;
 }
 
 export interface RestOpportunity {
@@ -67,6 +94,15 @@ export interface RestOpportunity {
   status: string;
   applicantsCount: number;
   hostLc: string;
+  branchId: number | null;
+  branchName: string;
+  hostLcId: number | null;
+  location: string | null;
+  programmes: OpportunityProgramme[];
+  learningPoints: string[];
+  selectionProcess: string | null;
+  logistics: OpportunityLogistics;
+  specifics: OpportunitySpecifics;
 }
 
 export interface PaginatedResponse<T> {

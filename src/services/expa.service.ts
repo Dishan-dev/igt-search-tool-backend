@@ -62,6 +62,7 @@ export class ExpaService {
           data {
             id
             title
+            description
             status
             earliest_start_date
             duration
@@ -86,6 +87,21 @@ export class ExpaService {
             specifics_info {
               salary
               salary_periodicity
+              computer
+              expected_work_schedule
+            }
+            role_info {
+              learning_points_list
+              selection_process
+            }
+            logistics_info {
+              accommodation_provided
+              accommodation_covered
+              computer_provided
+              food_provided
+              food_covered
+              transportation_provided
+              transportation_covered
             }
             programmes {
               id

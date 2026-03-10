@@ -21,17 +21,29 @@ export class ResponseMapper {
     const salaryPeriodicity = expaData.specifics_info?.salary_periodicity || null;
     const paid = salary !== null && salary > 0;
 
-    // Category from programme
-    const category = expaData.programmes?.short_name_display || "IGTa";
+    // EXPA may return programmes as either an object or an array depending on resolver shape.
+    const programmesRaw = Array.isArray(expaData.programmes)
+      ? expaData.programmes
+      : expaData.programmes
+      ? [expaData.programmes]
+      : [];
+
+    const programmes = programmesRaw.map((programme) => ({
+      id: programme.id,
+      shortName: programme.short_name_display,
+    }));
+
+    // Category from first programme (legacy field retained for frontend compatibility)
+    const category = programmes[0]?.shortName || "IGTa";
+
+    const learningPoints = expaData.role_info?.learning_points_list || [];
+    const selectionProcess = expaData.role_info?.selection_process || null;
 
     // Duration (usually weeks in EXPA)
     const duration = expaData.duration ? `${expaData.duration} Weeks` : "Not specified";
 
-    // Tags from learning points or other available data
-    const tags: string[] = [];
-    if (expaData.role_info?.learning_points_list) {
-      tags.push(...expaData.role_info.learning_points_list);
-    }
+    // Tags are currently represented by learning points.
+    const tags = [...learningPoints];
 
     return {
       id: String(expaData.id),
@@ -51,6 +63,28 @@ export class ResponseMapper {
       status: expaData.status || "Unknown",
       applicantsCount: expaData.applicants_count || 0,
       hostLc: hostLc,
+      branchId: expaData.branch?.id || null,
+      branchName: expaData.branch?.name || "Not specified",
+      hostLcId: expaData.host_lc?.id || null,
+      location: expaData.location || null,
+      programmes,
+      learningPoints,
+      selectionProcess,
+      logistics: {
+        accommodationProvided: expaData.logistics_info?.accommodation_provided || null,
+        accommodationCovered: expaData.logistics_info?.accommodation_covered || null,
+        computerProvided: expaData.logistics_info?.computer_provided || null,
+        foodProvided: expaData.logistics_info?.food_provided || null,
+        foodCovered: expaData.logistics_info?.food_covered || null,
+        transportationProvided: expaData.logistics_info?.transportation_provided || null,
+        transportationCovered: expaData.logistics_info?.transportation_covered || null,
+      },
+      specifics: {
+        salary,
+        salaryPeriodicity,
+        computer: expaData.specifics_info?.computer || null,
+        expectedWorkSchedule: expaData.specifics_info?.expected_work_schedule || null,
+      },
     };
   }
 }
