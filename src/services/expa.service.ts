@@ -3,8 +3,16 @@ import { env } from "../config/env";
 import { PaginatedResponse, RestOpportunity, ExpaOpportunityRaw } from "../types/opportunity.types";
 import { ResponseMapper } from "../utils/responseMapper";
 import { ExpaApiError } from "../utils/errors";
+import { OpportunityAssignmentsService } from "./opportunityAssignments.service";
 
 export class ExpaService {
+  private static readonly ACTIVE_EXPA_STATUSES = ["open", "live"];
+
+  private static isActiveStatus(status: string | null | undefined): boolean {
+    const normalized = (status || "").trim().toLowerCase();
+    return this.ACTIVE_EXPA_STATUSES.includes(normalized);
+  }
+
   /**
    * Helper function to optionally resolve the Colombo South Committee ID
    * if it wasn't supplied strictly in the environment variables.
@@ -103,6 +111,8 @@ export class ExpaService {
               transportation_provided
               transportation_covered
             }
+            opportunity_cost
+            fee_and_health_insurance
             programmes {
               id
               short_name_display
@@ -113,10 +123,16 @@ export class ExpaService {
     `;
 
     // Construct the payload filters, forcing programme 8 and the resolved committee ID
+    const statusFilter =
+      Array.isArray(filters?.statuses) && filters?.statuses.length > 0
+        ? filters.statuses
+        : ExpaService.ACTIVE_EXPA_STATUSES;
+
     const mergedFilters = {
       committee: parseInt(committeeId),
       programmes: [8],
       ...filters,
+      statuses: statusFilter,
     };
 
     const variables = {
@@ -129,11 +145,13 @@ export class ExpaService {
     try {
       const result = await executeGraphqlQuery(query, variables);
       const opportunitiesRaw: ExpaOpportunityRaw[] = result.allOpportunity.data;
-      
-      const mappedData = opportunitiesRaw.map(ResponseMapper.mapOpportunity);
-      
+      const mappedData = opportunitiesRaw
+        .map(ResponseMapper.mapOpportunity)
+        .filter((opportunity) => ExpaService.isActiveStatus(opportunity.status));
+      const enrichedData = await OpportunityAssignmentsService.enrichOpportunities(mappedData);
+
       return {
-        data: mappedData,
+        data: enrichedData,
         paging: {
           currentPage: result.allOpportunity.paging.current_page,
           totalPages: result.allOpportunity.paging.total_pages,
@@ -196,6 +214,8 @@ export class ExpaService {
             transportation_provided
             transportation_covered
           }
+          opportunity_cost
+          fee_and_health_insurance
           programmes {
             id
             short_name_display
@@ -210,7 +230,8 @@ export class ExpaService {
       return null;
     }
 
-    return ResponseMapper.mapOpportunity(result.getOpportunity);
+    const mappedOpportunity = ResponseMapper.mapOpportunity(result.getOpportunity);
+    return OpportunityAssignmentsService.enrichOpportunity(mappedOpportunity);
   }
 }
 

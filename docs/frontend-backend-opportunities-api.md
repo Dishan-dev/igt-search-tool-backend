@@ -246,6 +246,40 @@ Backend errors generally return:
 }
 ```
 
+## Google Sheet Assignment Sync
+
+The backend can enrich each opportunity with the assigned responsible person from a Google Sheet.
+
+### Backend `.env` Variables
+
+- `GOOGLE_SHEET_CSV_URL`: Public CSV export URL of your tracker sheet.
+- `GOOGLE_SHEET_SYNC_TTL_MS` (optional): Refresh interval in milliseconds. Default is `120000` (2 minutes).
+
+Example:
+
+```dotenv
+GOOGLE_SHEET_CSV_URL=https://docs.google.com/spreadsheets/d/<SHEET_ID>/gviz/tq?tqx=out:csv&sheet=Tracker
+GOOGLE_SHEET_SYNC_TTL_MS=120000
+```
+
+### Expected Sheet Columns
+
+Use any compatible header aliases, but the recommended columns are:
+
+- `opportunityId` (EXPA opportunity ID)
+- `assignedPerson`
+- `whatsappNumber` (or full WhatsApp URL)
+
+### Added Response Fields
+
+Each opportunity now includes:
+
+- `assignedPersonName`
+- `assignedPersonWhatsapp`
+- `assignedPersonWhatsappUrl`
+
+The frontend can use `assignedPersonWhatsappUrl` directly for a contact action.
+
 ## Notes for Frontend Team
 
 - List responses are cached in-memory on backend by query combination (short TTL), so repeated same queries are fast.

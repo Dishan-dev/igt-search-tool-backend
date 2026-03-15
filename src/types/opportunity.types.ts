@@ -24,7 +24,7 @@ export interface ExpaOpportunityRaw {
     country?: string;
   };
   specifics_info?: {
-    salary?: number | null;
+    salary?: number | string | null;
     salary_periodicity?: string;
     computer?: string;
     expected_work_schedule?: unknown;
@@ -76,6 +76,15 @@ export interface OpportunitySpecifics {
   expectedWorkSchedule: unknown | null;
 }
 
+export interface OpportunityCostDetails {
+  programmeFee: number | null;
+  projectFee: number | null;
+  total: number | null;
+  currency: string | null;
+  country: string | null;
+  healthInsuranceLink: string | null;
+}
+
 export interface RestOpportunity {
   id: string;
   title: string;
@@ -101,8 +110,18 @@ export interface RestOpportunity {
   programmes: OpportunityProgramme[];
   learningPoints: string[];
   selectionProcess: string | null;
+  roleDetails: string[];
+  processDetails: string[];
+  eligibilityDetails: string[];
+  logisticsDetails: string[];
+  visaDetails: string[];
   logistics: OpportunityLogistics;
   specifics: OpportunitySpecifics;
+  opportunityCost: OpportunityCostDetails | null;
+  feeAndHealthInsurance: OpportunityCostDetails | null;
+  assignedPersonName: string | null;
+  assignedPersonWhatsapp: string | null;
+  assignedPersonWhatsappUrl: string | null;
 }
 
 export interface PaginatedResponse<T> {

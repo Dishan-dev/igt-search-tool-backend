@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ExpaService } from "../services/expa.service";
+import { env } from "../config/env";
 
 import { FilterBuilder } from "../utils/filterBuilder";
 import { CacheManager } from "../utils/cacheManager";
@@ -29,8 +30,8 @@ export class OpportunitiesController {
         filters
       );
       
-      // Store the successful payload into the Cache (Default TTL 5 minutes)
-      CacheManager.set(cacheKey, paginatedResult);
+      // Keep list cache short so new opportunities appear quickly without manual refresh.
+      CacheManager.set(cacheKey, paginatedResult, env.OPPORTUNITIES_CACHE_TTL_MS);
 
       res.json(paginatedResult);
     } catch (error) {

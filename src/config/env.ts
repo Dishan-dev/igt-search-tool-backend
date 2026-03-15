@@ -22,4 +22,7 @@ export const env = {
   FRONTEND_ORIGINS:
     process.env.FRONTEND_ORIGINS ||
     "https://igt-search-tool.vercel.app,http://localhost:5173,http://localhost:3000",
+  GOOGLE_SHEET_CSV_URL: process.env.GOOGLE_SHEET_CSV_URL || "",
+  GOOGLE_SHEET_SYNC_TTL_MS: Number(process.env.GOOGLE_SHEET_SYNC_TTL_MS || 60000),
+  OPPORTUNITIES_CACHE_TTL_MS: Number(process.env.OPPORTUNITIES_CACHE_TTL_MS || 30000),
 };
